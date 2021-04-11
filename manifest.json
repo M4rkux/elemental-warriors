@@ -1,0 +1,13 @@
+{
+    "name": "Phaser 3 TS",
+    "short_name": "Phaser 3 TS",
+    "icons": [{
+        "src": "assets/logo-icon.png",
+        "sizes": "191x166",
+        "type": "image/png"
+      }],
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#000000"
+  }
