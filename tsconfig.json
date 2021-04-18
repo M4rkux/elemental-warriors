@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "types": ["vite/client"],
-    "allowJs": false,
+    "types": ["phaser", "vite/client"],
+    "allowJs": true,
     "skipLibCheck": false,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -13,10 +13,13 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "preserve",
+    "experimentalDecorators": true,
+		"noImplicitAny": false,
+		"importHelpers": true,
   },
   "include": [
-    "./src/**/*",
-    "node_modules/phaser3-rex-plugins-types"
+    "./src/**/*"
   ]
 }
