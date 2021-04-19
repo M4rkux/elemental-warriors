@@ -4,11 +4,20 @@ import { AnimationKeys } from '../consts/AnimationKeys';
 import { SceneKeys } from '../consts/SceneKeys';
 import { TextureKeys } from '../consts/TextureKeys';
 import { TextButton } from '../objects/TextButton';
-import WebFontFile from '../utils/WebFontFile';
 
 export default class CharacterCreation extends Phaser.Scene {
 
   private character!: Phaser.GameObjects.Sprite;
+  private attributes = {
+    int: 5,
+    luk: 5,
+    vit: 5,
+    str: 5,
+    agi: 5,
+    dex: 5
+  };
+  private attributesTxt = ['Int', 'Luk', 'Vit', 'Str', 'Agi', 'Dex'];
+  private polygonAttributes!: Phaser.GameObjects.Polygon;
 
   constructor() {
     super(SceneKeys.CharacterCreation);
@@ -30,7 +39,8 @@ export default class CharacterCreation extends Phaser.Scene {
     const domInputCharacterName = document.createElement('input');
     domInputCharacterName.setAttribute('id', 'characterName');
     const input_name = this.add.dom(
-      WORLD_WIDTH * 0.05, 470 + 30,
+      WORLD_WIDTH * 0.05,
+      470 + 30,
       domInputCharacterName,
       'font-size: 1.25rem'
     );
@@ -56,39 +66,42 @@ export default class CharacterCreation extends Phaser.Scene {
     this.add.existing(menu_quit);
   }
 
-
   createArrtibutesChart(originX: number, originY: number) {
     const a = 2 * Math.PI / 6;
     const r = 130;
 
     const basePositions: number[] = [];
     const arr2: number[] = [];
-    const attributes: string[] = ['Int', 'Luk', 'Vit', 'Str', 'Agi', 'Dex'];
     for (let i = 0; i < 6; i++) {
       basePositions.push(r * Math.sin(a * i), r * Math.cos(a * i));
       arr2.push((r / 2) * Math.sin(a * i), (r / 2) * Math.cos(a * i));
     }
 
     const basePolygon = this.add.polygon(originX, originY, basePositions, 0xFFFFFF, 1);
+    const r2 = this.add.polygon(originX - (basePolygon.width / 4), originY - (basePolygon.height / 4), arr2, 0x6666ff, 0.25);
+    // r2.setBlendMode(Phaser.BlendModes.SCREEN)
+
     const basePolygonBounds = basePolygon.getBounds();
+
+    console.log(arr2);
+    arr2[6] *= 1.85;
+    arr2[7] *= 1.85;
+    arr2[0] *= 0.15;
+    arr2[1] *= 0.15;
+
 
     for (let i = 0; i < 6; i++) {
       const x = originX - (basePolygon.width / 2) + r * Math.sin(a * i);
       const y = originY - (basePolygon.height / 2) + r * Math.cos(a * i);
-      const img = this.add.image(
+      const attr = new TextButton(
+        this,
         x,
         y,
-        TextureKeys.GreenSliderDown,
+        this.attributesTxt[i],
+        { fontFamily: 'Quicksand', fontSize: '1rem'},
+        () => { this.changeAttributes(this.attributesTxt[i]); }
       );
-      img.setInteractive({ useHandCursor: true });
-      this.pushFromOrigin(x, y, img, basePolygonBounds);
-      this.fixAngle(img, i);
-      const attr = this.add.text(
-        x,
-        y,
-        attributes[i],
-        { fontFamily: 'Quicksand', color: '#FFFFFF', fontSize: '1rem' }
-      );
+      this.add.existing(attr);
       this.pushFromOrigin(x, y, attr, basePolygonBounds);
     }
 
@@ -99,17 +112,12 @@ export default class CharacterCreation extends Phaser.Scene {
     graphics.lineBetween(basePositions[2], basePositions[3], basePositions[8], basePositions[9]);
     graphics.lineBetween(basePositions[4], basePositions[5], basePositions[10], basePositions[11]);
 
-    const r2 = this.add.polygon(originX - (basePolygon.width / 4), originY - (basePolygon.height / 4), arr2, 0x6666ff, 1);
+    this.polygonAttributes = this.add.polygon(originX - (basePolygon.width / 4), originY - (basePolygon.height / 4), arr2, 0x6666ff, 1);
 
     // r1.setBlendMode(Phaser.BlendModes.SCREEN);
   }
 
-  pushFromOrigin(
-    x: number,
-    y: number,
-    obj: Phaser.GameObjects.Image | Phaser.GameObjects.Text,
-    originBounds: Phaser.Geom.Rectangle,
-  ) {
+  pushFromOrigin(x: number, y: number, obj: Phaser.GameObjects.Text,originBounds: Phaser.Geom.Rectangle) {
     if (x < originBounds.x) {
       x -= 15;
     } else if (x > originBounds.x) {
@@ -125,10 +133,22 @@ export default class CharacterCreation extends Phaser.Scene {
     obj.setPosition(x, y);
   }
 
-  fixAngle(img: Phaser.GameObjects.Image, i: number) {
-    i = i < 2 ? i : i + 1;
-    i = i < 6 ? i : i + 1;
-    img.setAngle(-45*i);
+  changeAttributes(attr: string) {
+    const attrLower = attr.toLowerCase();
+    const idx = this.attributesTxt.indexOf(attr);
+    const attrOpposite = (this.attributesTxt.find((txt, i) => {
+      if (idx < 3) {
+        return idx+3 === i && txt;
+      } else {
+        return idx-3 === i && txt;
+      }
+    }) || '').toLowerCase();
+    if (this.attributes[attrOpposite] > 1) {
+      this.attributes[attrLower]++;
+      this.attributes[attrOpposite]--;
+    }
+    console.log(this.attributes);
+    console.log(this.attributes);
   }
 
   createAnimation() {
